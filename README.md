@@ -34,9 +34,29 @@ join == get，join不会抛出异常
     多个completionStage 先完成的等待后完成的，完成后一起进行结果的合并
     thenCombine(completionFuture,(r1,r2)->{})
     ```
-4. 悲观锁与乐观锁
+4. 锁
     ```$xslt
-    synchronized与reentrantlock 悲观锁
-    cas 乐观锁
+    synchronized与reentrantlock 悲观锁  cas 乐观锁
     ```
+    - 8种锁现象的演示
+    ```$xslt
+    类Phone 普通sendEmail() sendSMS()  控制email先与sms启动谁先 
+    1. 标准访问 synchronied 修饰普通方法
+    2. email 里面 TimeUnit.SECONDS.sleep(3)   => sleep不释放锁
+    3. 新增一个普通hello(), email or hello   => hello() 不需要锁
+    4. 2部Phone, phone1.sendEmail,phone2.sendSMS()  => sms synchronized锁当前对象
+    5. 两个静态同步方法，同一个手机   => static修饰 锁类对象 email
+    6. 两个静态同步方法，2个手机   => static修饰 锁类对象 email
+    7. 1个静态同步方法，1个普通同步方法，1个手机   =>  sms
+    8. 1个静态同步方法，1个普通同步方法，2个手机   =>  sms 
+    ```
+    - 总结
+    ```$xslt
+    synchronized修饰普通成员方法锁的是this对象，不同对象时，不影响。一个对象时只有一个线程可访问this的syn方法，hello不需要锁
+    修饰static方法  锁的是当前类 
+    类锁与对象锁互相独立，7-8问题
+    修饰代码块，修饰的是括号里配置的对象的锁
+    ``` 
+5. 这是第五点
+
   
