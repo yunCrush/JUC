@@ -50,13 +50,70 @@ join == get，join不会抛出异常
     7. 1个静态同步方法，1个普通同步方法，1个手机   =>  sms
     8. 1个静态同步方法，1个普通同步方法，2个手机   =>  sms 
     ```
-    - 总结
+    - 8种现象总结
     ```$xslt
     synchronized修饰普通成员方法锁的是this对象，不同对象时，不影响。一个对象时只有一个线程可访问this的syn方法，hello不需要锁
     修饰static方法  锁的是当前类 
     类锁与对象锁互相独立，7-8问题
     修饰代码块，修饰的是括号里配置的对象的锁
-    ``` 
-5. 这是第五点
+    ```
+   - synchronized同步代码块 syn(obj)
+   ```$xslt
+    monitorenter与monitorexit 并非1:1， 多出的monitorexit保证出异常也可正常释放锁
+    如果直接在代码块内部抛出异常，出现athrow 1对，enter与exit配对 
+    ```
+    - synchronized 普通同步方法 syn method(){}
+    ```$xslt
+       flag： ACC_SYNCHRONIZED 
+    ```
+    - synchronized static 同步方法 static syn method(){}
+    ```$xslt
+       flag： ACC_STATIC  ACC_SYNCHRONIZED
+       ObjectMonitor.java -> ObjectMonitor.cpp -> ObjectMonitor.hpp
+       锁升级主要依赖于MarkWord的锁标志位和释放偏向锁标志位
+    ```
+    - 公平锁与非公平锁
+    ```$xslt
+        ReentrantLock 默认非公平锁 
+        公平与非公平是判断同步队列中是否有先驱节点，刚释放锁的线程再次获得锁的概率非常大，
+        使用非公平的优点是减少线程开销，提高性能，会出现“锁饥饿”
+    ```
+    - 可重入锁与不可重入锁
+    ```$xslt
+     syn与reentrantlock都是可重入锁，syn默认可重入锁
+     在syn修饰的代码块或者方法中，调用本类的其他同步方法或代码块，可直接进入，是可以直接获取到锁的
+     每个对象拥有一个锁计数器和一个指向 持有该锁线程的指针
+    ```
+5. 死锁
+    - 死锁排除
+    ```$xslt
+    jps+jstack: jps -l  jstack+pid 
+    jconsole
+    ```
+6. 线程中断机制
+    - void interrupt() 中断协商机制
+    ```$xslt
+    手动调用该线程的interrupt()仅仅将中断标识设置为true，线程正常运行，并不能立即中断
+   底层调用interrupt0(),join() wait() sleep()被中断抛中断异常
+    ```
+   **线程立即退出被阻塞状态，中断异常会把标志位复位为false,需要再调用一次Thread.currentThread().interrupt()**
+    - static boolean interrupted()
+    ```$xslt
+    Thread.interrupted() 返回当前的线程中断状态，重置标识位
+    ````
+    -  boolean isInterrupted()
+    ```$xslt
+    返回中断状态
+    ```
+   **总结**: interrupted与IsInterrupted()都调用的是isInterrupted(ClearInterrupted),
+   前者传入true，需要重置标志位为false
+   - 优雅中断线程
+   ```$xslt
+    1. static volatile boolean isStop = false 修改变量值，进行中断
+    2. static AtomicBoolean a = new AtomicBoolean(false);
+        a.set(true);
+        if(a.get()){} 
+    ```
+    
 
   
