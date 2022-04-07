@@ -56,9 +56,7 @@ public class CompletableNetMallTest {
         System.out.println("----costTime: " + (endTime2 - startTime2) + " 毫秒");
     }
 }
-
-
-class Mall {
+ class Mall {
     @Getter
     String mallName;
 

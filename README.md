@@ -74,7 +74,7 @@ join == get，join不会抛出异常
     ```
     - 公平锁与非公平锁
     ```$xslt
-        ReentrantLock 默认非公平锁 
+        ReentrantLock 默认非公平锁,Syn是非公平锁
         公平与非公平是判断同步队列中是否有先驱节点，刚释放锁的线程再次获得锁的概率非常大，
         使用非公平的优点是减少线程开销，提高性能，会出现“锁饥饿”
     ```
@@ -114,6 +114,36 @@ join == get，join不会抛出异常
         a.set(true);
         if(a.get()){} 
     ```
+   
+7. LockSupport 线程唤醒与等待
+    - Object wait() notify()  (syn+wait+notify)
+    - Condition await() signal() (lock+await+signal)
+        ReentrantLock lock = new ReentrantLock();
+        Condition con = lock.newCondition(); 
+    - LockSupport
+        是用来创建锁和其他同步类的基本线程阻塞原语，park()阻塞线程 unpark(thread) 解除阻塞
+        park()将permit设置为0，进行阻塞，unpark()将permit设置为1,不可累加只有1，自动唤醒被阻塞的线程
+        
+    **总结**: LockSupport无需锁块，且不用遵守先阻塞再唤醒。wait notify和await signal需遵守，unpark只管一次。 
+8. 内存屏障
+    - JSR-133定义happens-before规则：6点，是一种规范
     
-
-  
+    要求编译器在生成jvm指令时，插入特定的内存屏障指令来保证指令不会重排序以及有序性。volatile不会保证原子性
+    - 4条cpu的屏障指令
+    ```$xslt
+    loadload() storestore() loadstore() storeload()
+    一读，二写，写+读  (写前后，读后)。写前：storestore 写后storeload 读后loadstore loadload
+    (解释：第一个是volatile读时，不可重排序，保证volatile读后的操作不会被重排序到前面去)
+    (第二个是volatile写时，不可重排序，保证volatile写前的操作不会被重排序到后面去)
+    (第一个是volatile写时，第二个是volatile读时，不可重排序)
+    volatile写之前插入storestore屏障，之后插入storeload屏障
+    volatile读后面插入一个loadload屏障，之后插入一个loadstore屏障
+    ```
+    - volatile读写过程
+    ```$xslt
+    read ->load -> use(使用) -> assign(赋值) -> store -> write -> lock -> unlock  
+    ```
+   ![](https://cdn.nlark.com/yuque/0/2022/png/361120/1649325239990-8b1c738c-8c95-48b7-9aa5-369f1ef9d82c.png?x-oss-process=image%2Fresize%2Cw_900%2Climit_0)
+    - volatile复合操作(i++)不具备原子性
+    不具备原子性的原因在于use-> assign阶段 方法需要加syn锁
+    所以volatile修饰的变量，只适合用来保存某个状态的Boolean值或者int值，不做复杂操作
