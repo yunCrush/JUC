@@ -1,4 +1,4 @@
-package com.yun;
+package com.yun.completabelFuture;
 
 
 import java.util.concurrent.*;
@@ -17,7 +17,7 @@ public class FutureTaskTest {
         FutureTask<Integer> futureTask = new FutureTask(() -> {
             System.out.println("子线程逻辑处理中");
             try {
-                Thread.sleep(5 * 1000);
+                Thread.sleep(1 * 1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -26,19 +26,20 @@ public class FutureTaskTest {
         });
         new Thread(futureTask, "t1").start();
         // 2. 过时不候 超时机制等待3秒，拿不到结果返回
-        // futureTask.get(3, TimeUnit.MILLISECONDS);
+        // System.out.println(futureTask.get(3*1000, TimeUnit.MILLISECONDS));
+        System.out.println(Thread.currentThread().getName()+"\t"+futureTask.get(1L,TimeUnit.SECONDS));
         // 3. 轮询 使用轮询替代，也不建议
-        while (true) {
-            if (futureTask.isDone()) {
-                System.out.println("拿到处理结果：-->"+futureTask.get());
-                break;
-            }else {
-                System.out.println("还在处理逻辑中，别催");
-            }
-        }
+        // while (true) {
+        //     System.out.println("主线程=====>");
+        //     if (futureTask.isDone()) {
+        //         System.out.println("拿到处理结果：-->" + futureTask.get());
+        //         break;
+        //     } else {
+        //         System.out.println("还在处理逻辑中，别催");
+        //     }
+        // }
         System.out.println("main 线程处理逻辑");
         // futureTask,get(timeout,TimeUnit) 超时机制
         //1.不见不散 System.out.println(futureTask.get());
-
     }
 }

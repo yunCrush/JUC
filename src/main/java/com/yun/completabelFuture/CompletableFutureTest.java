@@ -1,4 +1,4 @@
-package com.yun;
+package com.yun.completabelFuture;
 
 import java.util.concurrent.*;
 
@@ -13,6 +13,7 @@ public class CompletableFutureTest {
         CompletableFuture.supplyAsync(() -> {
             System.out.println("任务1开始处理逻辑");
             try {
+                m1();
                 TimeUnit.SECONDS.sleep(2);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -32,7 +33,9 @@ public class CompletableFutureTest {
         });
         try { TimeUnit.SECONDS.sleep(5); } catch (Exception e) { e.printStackTrace();}
 
-        System.out.println("Main 线程结束");
+        System.out.println("Main 线程结束"+Thread.currentThread().getName());
+
+        // System.out.println(CompletableFuture.supplyAsync(() -> "abc").thenApply(r -> r + "123").join());
     }
 
     private static void m1() throws ExecutionException, InterruptedException {
@@ -45,7 +48,7 @@ public class CompletableFutureTest {
                 Executors.defaultThreadFactory(),
                 new ThreadPoolExecutor.AbortPolicy());
         // m1(threadPoolExecutor);
-        threadPoolExecutor.shutdown();
+        // threadPoolExecutor.shutdown();
         // 无传入值与返回值
         CompletableFuture<Void> comFuture1 = CompletableFuture.runAsync(() -> {
             System.out.println("处理逻辑1" + Thread.currentThread().getName());
@@ -61,9 +64,10 @@ public class CompletableFutureTest {
             System.out.println("处理逻辑3" + Thread.currentThread().getName());
             return 3;
         });
+        System.out.println("3:" + comFuture3.get());
         // 带线程池
         CompletableFuture<Integer> comFuture4 = CompletableFuture.supplyAsync(() -> {
-            System.out.println("处理逻辑3" + Thread.currentThread().getName());
+            System.out.println("处理逻辑4" + Thread.currentThread().getName());
             return 4;
         }, threadPoolExecutor);
         System.out.println("4: " + comFuture4.get());

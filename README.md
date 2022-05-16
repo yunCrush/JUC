@@ -44,7 +44,7 @@ join == get，join不会抛出异常
     1. 标准访问 synchronied 修饰普通方法
     2. email 里面 TimeUnit.SECONDS.sleep(3)   => sleep不释放锁
     3. 新增一个普通hello(), email or hello   => hello() 不需要锁
-    4. 2部Phone, phone1.sendEmail,phone2.sendSMS()  => sms synchronized锁当前对象
+    4. 2部Phone,2个同步方法， phone1.sendEmail,phone2.sendSMS()  => sms synchronized锁当前对象
     5. 两个静态同步方法，同一个手机   => static修饰 锁类对象 email
     6. 两个静态同步方法，2个手机   => static修饰 锁类对象 email
     7. 1个静态同步方法，1个普通同步方法，1个手机   =>  sms
@@ -94,12 +94,12 @@ join == get，join不会抛出异常
     - void interrupt() 中断协商机制
     ```$xslt
     手动调用该线程的interrupt()仅仅将中断标识设置为true，线程正常运行，并不能立即中断
-   底层调用interrupt0(),join() wait() sleep()被中断抛中断异常
+   底层调用interrupt0(),在join() wait() sleep()过程中，被中断抛中断异常,
     ```
    **线程立即退出被阻塞状态，中断异常会把标志位复位为false,需要再调用一次Thread.currentThread().interrupt()**
     - static boolean interrupted()
     ```$xslt
-    Thread.interrupted() 返回当前的线程中断状态，重置标识位
+    重点：Thread.interrupted() 返回当前的线程中断状态，重置标识位
     ````
     -  boolean isInterrupted()
     ```$xslt
@@ -116,12 +116,12 @@ join == get，join不会抛出异常
     ```
    
 7. LockSupport 线程唤醒与等待
-    - Object wait() notify()  (syn+wait+notify)
-    - Condition await() signal() (lock+await+signal)
+    - Object wait() notify()  (**syn+wait+notify** 会报illegalMonitor) 
+    - Condition await() signal() (**lock unlock +await+signal**)
         ReentrantLock lock = new ReentrantLock();
         Condition con = lock.newCondition(); 
     - LockSupport
-        是用来创建锁和其他同步类的基本线程阻塞原语，park()阻塞线程 unpark(thread) 解除阻塞
+        是用来创建锁和其他同步类的基本线程阻塞原语，park()阻塞线程 unpark(thread) 解除阻塞,无需关注顺序
         park()将permit设置为0，进行阻塞，unpark()将permit设置为1,不可累加只有1，自动唤醒被阻塞的线程
         
     **总结**: LockSupport无需锁块，且不用遵守先阻塞再唤醒。wait notify和await signal需遵守，unpark只管一次。 
@@ -143,7 +143,7 @@ join == get，join不会抛出异常
     ```$xslt
     read ->load -> use(使用) -> assign(赋值) -> store -> write -> lock -> unlock  
     ```
-   ![](https://cdn.nlark.com/yuque/0/2022/png/361120/1649325239990-8b1c738c-8c95-48b7-9aa5-369f1ef9d82c.png?x-oss-process=image%2Fresize%2Cw_900%2Climit_0)
+   ![](./images/work2main-memory.png)
     - volatile复合操作(i++)不具备原子性
     不具备原子性的原因在于use-> assign阶段 方法需要加syn锁
     所以volatile修饰的变量，只适合用来保存某个状态的Boolean值或者int值，不做复杂操作

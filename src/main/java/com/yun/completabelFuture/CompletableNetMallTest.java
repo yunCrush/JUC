@@ -1,4 +1,4 @@
-package com.yun;
+package com.yun.completabelFuture;
 
 import lombok.Getter;
 
@@ -31,7 +31,10 @@ public class CompletableNetMallTest {
     public static List<String> getPriceByAsyn(List<Mall> list, String productName) {
         return list
                 .stream()
-                .map(mall -> CompletableFuture.supplyAsync(() -> String.format(productName + "  in %s is %.2f", mall.getMallName(), mall.calPrice(productName))))
+                .map(mall -> CompletableFuture.supplyAsync(() ->
+
+                        String.format(productName + "  in %s is %.2f", mall.getMallName(), mall.calPrice(productName) ))
+                )
                 .collect(Collectors.toList())
                 .stream()
                 .map(CompletableFuture::join)
