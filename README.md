@@ -189,6 +189,26 @@ CAS是JDK提供的非阻塞原子性操作，它通过硬件保证了比较-更�
       同原子类类似。   
      - 3.AtomicStampedReference     
       解决ABA问题 [ABAdemo](./src/main/java/com/yun/cas/ABADemo.java)
-
+10. 原子类操作之增强    
+    - 1.是什么    
+     package java.util.concurrent.atomic下面的所有类     
+     基本类型原子类:AtomicInteger,AtomicLong,AtomicBoolean    
+     数组类型原子类:AtomicIntegerArray,AtomicLongArray,AtomicReferenceArray    
+     引用类型原子类：AtomicReference
+    - 2.使用API    
+     [AtomicIntegerDemo](./src/main/java/com/yun/atomics/AtomicIntegerDemo.java)     
+     [对象的属性修改原子类](./src/main/java/com/yun/atomics/AtomicIntegerFieldUpdaterDemo.java)    
+    - 3.原子操作增强类原理深度解析    
+    	DoubleAccumulator   
+    	DoubleAdder    
+    	[LongAccumulator(提供了自定义的函数操作)](./src/main/java/com/yun/atomics/LongAdderCalcDemo.java)   
+    	[LongAdder(只能用来计算加法，且从零开始计)](./src/main/java/com/yun/atomics/LongAdderAPIDemo.java)    
+    	LongAdder： long sum() 返回的是当前值。 在没有并发时返回精确值，存在并发不能保证返回精确值    
+    	[速度大比拼](./src/main/java/com/yun/atomics/LongAdderCalcDemo.java)
+    	
+     
+         
+     
+    
     
     
