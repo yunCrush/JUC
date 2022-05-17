@@ -184,7 +184,11 @@ CAS是JDK提供的非阻塞原子性操作，它通过硬件保证了比较-更�
            return var5;
        } 
         ```     
-      **核心思想就是：比较要更新变量的值V和预期值E（compare），相等才会将V的值设为新值N（swap）如果不相等自旋再来。**   
+      **核心思想就是：比较要更新变量的值V和预期值E（compare），相等才会将V的值设为新值N（swap）如果不相等自旋再来。**
+     - 2.AtomicReference      
+      同原子类类似。   
+     - 3.AtomicStampedReference     
+      解决ABA问题 [ABAdemo](URL './src/main/java/com/yun/cas/ABADemo.java')
 
     
     
