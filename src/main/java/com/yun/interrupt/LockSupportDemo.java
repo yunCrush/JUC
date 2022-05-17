@@ -7,8 +7,7 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * @auther zzyy
- * @create 2020-07-10 14:05
+ * @auther yunCrush
  */
 public class LockSupportDemo {
     static Object objectLock = new Object();//持有锁，方便抢占资源

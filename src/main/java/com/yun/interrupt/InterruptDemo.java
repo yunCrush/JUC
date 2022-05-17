@@ -4,8 +4,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @auther zzyy
- * @create 2021-03-03 18:20
  */
 public class InterruptDemo
 {
