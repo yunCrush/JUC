@@ -158,7 +158,7 @@ CAS是JDK提供的非阻塞原子性操作，它通过硬件保证了比较-更�
 执行cmpxchg指令的时候，会判断当前系统是否为多核系统，如果是就给总线加锁，只有一个线程会对总线加锁成功，加锁成功之后会执行cas操作，也就是说CAS的原子性实际上是CPU实现的， 其实在这一点上还是有排他锁的，只是比起用synchronized， 这里的排他时间要短的多， 所以在多线程情况下性能会比较好   
     - 1. Unsafe   
       是CAS的核心类，由于Java方法无法直接访问底层系统，需要通过本地（native）方法来访问，Unsafe相当于一个后门，基于该类可以直接操作特定内存的数据。Unsafe类存在于sun.misc包中，其内部方法操作可以像C的指针一样直接操作内存，因为Java中CAS操作的执行依赖于Unsafe类的方法，注意Unsafe类中的所有方法都是native修饰的，也就是说Unsafe类中的方法都直接调用操作系统底层资源执行相应任务。
-        ```aidl
+        ```$xslt
         public final boolean compareAndSet(int expect, int update) {
             // valueOffset表示在内存中的偏移地址
             return unsafe.compareAndSwapInt(this, valueOffset, expect, update);
@@ -171,7 +171,7 @@ CAS是JDK提供的非阻塞原子性操作，它通过硬件保证了比较-更�
         ``` 
       AtomicInteger 类主要利用 CAS (compare and swap) + volatile 和 native 方法来保证原子操作，从而避免 synchronized 的高开销，执行效率大为提升。    
       CAS并发原语体现在JAVA语言中就是sun.misc.Unsafe类中的各个方法。调用UnSafe类中的CAS方法，JVM会帮我们实现出CAS汇编指令。这是一种完全依赖于硬件的功能，通过它实现了原子操作。再次强调，由于CAS是一种系统原语，原语属于操作系统用语范畴，是由若干条指令组成的，用于完成某个功能的一个过程，并且原语的执行必须是连续的，在执行过程中不允许被中断，也就是说CAS是一条CPU的原子指令，不会造成所谓的数据不一致问题。
-        ```aidl
+        ```$xslt
        public final int getAndAddInt(Object var1, long var2, int var4) {
            int var5;
            do {
