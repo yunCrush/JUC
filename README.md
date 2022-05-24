@@ -204,18 +204,42 @@ CAS是JDK提供的非阻塞原子性操作，它通过硬件保证了比较-更�
     	[LongAccumulator(提供了自定义的函数操作)](./src/main/java/com/yun/atomics/LongAdderCalcDemo.java)   
     	[LongAdder(只能用来计算加法，且从零开始计)](./src/main/java/com/yun/atomics/LongAdderAPIDemo.java)    
     	LongAdder： long sum() 返回的是当前值。 在没有并发时返回精确值，存在并发不能保证返回精确值    
-    	[速度大比拼](./src/main/java/com/yun/atomics/LongAdderCalcDemo.java)
+    	[速度大比拼](./src/main/java/com/yun/atomics/LongAdde+   rCalcDemo.java)
     - 4.LongAdder为什么这么快？   
         LongAdder是Striped64的子类,striped64采用base+cell[]   
         ![](./images/LongAdder.jpg)
         AtomicLong:  base + cas 在并发低的情况下可以满足   
         LongAdder: 使用分而治之的思想使用cell,CPU的数量决定cell的个数，base并发上去升级后才会触发cell.即多个cell，分别采用cas。获取总数需要求和base+cell[]     
-        通过thread_id hash算cell 索引	
+        通过thread_id hash算cell 索引     
+        **缺陷：sum求和后还有计算线程修改结果的话，最后结果不够准确**	
+    - 5.AtomicLong瓶颈      
+        N个线程CAS操作修改线程的值，每次只有一个成功过，其它N - 1失败，失败的不停的自旋直到成功，这样大量失败自旋的情况，一下子cpu就打高了。
+    
 11. ThreadLocal   
-ThreadLocal与ThreadLocalMap关系？ThreadLocal中的key是弱引用？内存泄露为什么？为什么增加remove方法？    
+ThreadLocal与ThreadLocalMap关系？ThreadLocal中的key是弱引用？内存泄露为什么？为什么增加remove方法？     
+    ![](./images/threadlocal.jpg)    
+    ![](./images/threadlocal-structure.png)
     - 1.用途：     
     a.每个线程需要一个独享的对象，通常对象指工具类SimpleDateFormat和Random    
     b.每个线程需要保存全局的变量，这里如在拦截器中拦截的用户信息，避免参数传递的麻烦
+    - 2.理解：   
+    a.每个thread对应一个threadlocalMap,threadLocalMap里面存放多个threadLocal,key即为threadlocal引用,value为任意值的entry。    
+    b.不用ThreadLocal，因为SimpleDateFormat是static线程不安全，底层在每次使用完calender后悔调用cal.clear清除，导致报错。    
+    c.JVM内部维护了一个线程版的Map<Thread,T>(通过ThreadLocal对象的set方法，结果把ThreadLocal对象自己当做key，放进了ThreadLoalMap中),每个线程要用到这个T的时候，用当前的线程去Map里面获取，通过这样让每个线程都拥有了自己独立的变量，
+      人手一份，竞争条件被彻底消除，在并发模式下是绝对安全的变量。
+    d.Thread -->ThreadLocal -->ThreadLocalMap --> Entry 4个类   
+    ```$xslt
+         static class Entry extends WeakReference<ThreadLocal<?>> {
+                    /** The value associated with this ThreadLocal. */
+                    Object value;
+        
+                    Entry(ThreadLocal<?> k, Object v) {
+                        super(k);
+                        value = v;
+                    }
+                }
+    ```
+
      
     
     
