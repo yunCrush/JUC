@@ -183,7 +183,7 @@ CAS是JDK提供的非阻塞原子性操作，它通过硬件保证了比较-更�
    
            return var5;
        } 
-        ```     
+        ```      
       **核心思想就是：比较要更新变量的值V和预期值E（compare），相等才会将V的值设为新值N（swap）如果不相等自旋再来。**
      - 2.AtomicReference      
       同原子类类似。   
@@ -205,9 +205,17 @@ CAS是JDK提供的非阻塞原子性操作，它通过硬件保证了比较-更�
     	[LongAdder(只能用来计算加法，且从零开始计)](./src/main/java/com/yun/atomics/LongAdderAPIDemo.java)    
     	LongAdder： long sum() 返回的是当前值。 在没有并发时返回精确值，存在并发不能保证返回精确值    
     	[速度大比拼](./src/main/java/com/yun/atomics/LongAdderCalcDemo.java)
-    	
-     
-         
+    - 4.LongAdder为什么这么快？   
+        LongAdder是Striped64的子类,striped64采用base+cell[]   
+        ![](./images/LongAdder.jpg)
+        AtomicLong:  base + cas 在并发低的情况下可以满足   
+        LongAdder: 使用分而治之的思想使用cell,CPU的数量决定cell的个数，base并发上去升级后才会触发cell.即多个cell，分别采用cas。获取总数需要求和base+cell[]     
+        通过thread_id hash算cell 索引	
+11. ThreadLocal   
+ThreadLocal与ThreadLocalMap关系？ThreadLocal中的key是弱引用？内存泄露为什么？为什么增加remove方法？    
+    - 1.用途：     
+    a.每个线程需要一个独享的对象，通常对象指工具类SimpleDateFormat和Random    
+    b.每个线程需要保存全局的变量，这里如在拦截器中拦截的用户信息，避免参数传递的麻烦
      
     
     
