@@ -238,7 +238,19 @@ ThreadLocal与ThreadLocalMap关系？ThreadLocal中的key是弱引用？内存�
                         value = v;
                     }
                 }
-    ```
+    ```    
+    ![](./images/weakreference.png)    
+    ![](./images/threadlocal-remove.png)    
+    在线程栈中，func1方法栈帧中结束退出后tl被销毁，此时threadLocal对象，因为ThreadLocalMap中的Entry使用的是弱引用指向，无强引用指向，所以会被回收，相反如果也是强引用指向的话threadLocal对象会一直存在，则会导致内存泄露。所以图中的k此时指向Null,这里和threadLocal的get方法有关，get方法得到的是对象，所以整个Entry对象是<thread,T>。     
+    只要线程没有被销毁，那么threadlocalmap就会一直存在，key为Null,value为大对象。虽然弱引用，保证了key指向的ThreadLocal对象能被及时回收，但是v指向的value对象是需要ThreadLocalMap调用get、set时发现key为null时才会去回收整个entry、value，因此弱引用不能100%保证内存不泄露。我们要在不使用某个ThreadLocal对象后，手动调用remoev方法来删除它。     
+    - 3. 总结
+    	a.ThreadLocal 并不解决线程间共享数据的问题
+    	b.ThreadLocal 适用于变量在线程间隔离且在方法间共享的场景
+    	c.ThreadLocal 通过隐式的在不同线程内创建独立实例副本避免了实例线程安全的问题
+    	d.每个线程持有一个只属于自己的专属Map并维护了ThreadLocal对象与具体实例的映射， 该Map由于只被持有它的线程访问，故不存在线程安全以及锁的问题
+    	e.ThreadLocalMap的Entry对ThreadLocal的引用为弱引用，避免了ThreadLocal对象无法被回收的问题
+    	f.都会通过expungeStaleEntry，cleanSomeSlots,replaceStaleEntry这三个方法回收键为 null 的 Entry 对象的值（即为具体实例）以及 Entry 对象本身从而防止内存泄漏，属于安全加固的方法
+
 
      
     
